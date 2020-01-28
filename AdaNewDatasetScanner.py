@@ -1,50 +1,8 @@
 import requests
 import json
-import env
-
-API_METABASE_AUTHENTICATION_ENDPOINT = "https://dataverse-dev.ada.edu.au/metabase/api/session"
-
-API_WP_AUTHENTICATION_ENDPOINT = "http://sw-dev.ada.edu.au:8085/wp-json/aam/v2/authenticate"
-
-API_WP_VALIDATE = "http://sw-dev.ada.edu.au:8085/wp-json/aam/v1/validate-jwt"
-
-API_DATASETS_QUERY = "https://dataverse-dev.ada.edu.au/metabase/api/card/295/query/json"
-
-API_WP_CREATEPOSTS = "http://sw-dev.ada.edu.au:8085/wp-json/wp/v2/posts"
-
-API_METABASE_AUTHENTICATION_HEADER = {
-    'Content-Type': 'application/json'
-}
-
-API_METABASE_AUTHENTICATION_BODY = {
-    "username": env.METABASE_USERNAME,
-    "password": env.METABASE_PASSWORD
-}
-
-API_WP_AUTHENTICATION_HEADER = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-}
-
-API_WP_AUTHENTICATION_BODY = {
-    "username": env.WP_USERNAME,
-    "password": env.WP_PASSWORD,
-    "issueJWT": "true"
-}
-
-API_WP_VALIDATE_HEADER = {
-    'Content-Type': 'application/json'
-}
-
-API_WP_CREATEPOTS_HEADER = {
-    'Content-Type': 'application/x-www-form-urlencoded'
-}
-
-
+import Constants
 
 dataSets = []
-
-wpToken = ""
 
 
 def datasetHeader(session_token):
@@ -72,7 +30,7 @@ def wpCreatePostBody(jwtToken, title, content,category):
 
 def fetchMetabaseSessionToken():
     try:
-        r = requests.post(API_METABASE_AUTHENTICATION_ENDPOINT, data=json.dumps(API_METABASE_AUTHENTICATION_BODY), headers=API_METABASE_AUTHENTICATION_HEADER)
+        r = requests.post(Constants.API_METABASE_AUTHENTICATION_ENDPOINT, data=json.dumps(Constants.API_METABASE_AUTHENTICATION_BODY), headers=Constants.API_METABASE_AUTHENTICATION_HEADER)
         if r.status_code == 200:
             token = (json.loads(r.text)["id"])
             return token
@@ -82,7 +40,7 @@ def fetchMetabaseSessionToken():
 
 def fetchWPToken():
     try:
-        r = requests.post(API_WP_AUTHENTICATION_ENDPOINT, data=json.dumps(API_WP_AUTHENTICATION_BODY), headers=API_WP_AUTHENTICATION_HEADER)
+        r = requests.post(Constants.API_WP_AUTHENTICATION_ENDPOINT, data=json.dumps(Constants.API_WP_AUTHENTICATION_BODY), headers=Constants.API_WP_AUTHENTICATION_HEADER)
         if r.status_code == 200:
             token = json.loads(r.text)['jwt']['token']
             return token
@@ -97,7 +55,7 @@ wpToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1Nzk4MjYzMTcsImlzcyI6
 def validateWPToken():
     print(wpToken)
     try:
-        r = requests.post(API_WP_VALIDATE, data=json.dumps(wpValidateBody(wpToken)), headers=API_WP_VALIDATE_HEADER)
+        r = requests.post(Constants.API_WP_VALIDATE, data=json.dumps(wpValidateBody(wpToken)), headers=Constants.API_WP_VALIDATE_HEADER)
         if r.status_code == 200:
             token = json.loads(r.text)['isValid']
             return token
@@ -109,7 +67,7 @@ def fetchDatasets():
 
     sessionToken = fetchMetabaseSessionToken()
     try:
-        r = requests.post(API_DATASETS_QUERY, headers=datasetHeader(sessionToken))
+        r = requests.post(Constants.API_DATASETS_QUERY, headers=datasetHeader(sessionToken))
         if r.status_code == 200:
             res = json.loads(r.text)
 
@@ -124,9 +82,10 @@ def createWPposts(content):
     fetchDatasets()
     for i in range(len(content)):
         #if i < 1:
+        print(content[i])
         payload = wpCreatePostBody(fetchWPToken(), content[i]['dataset_title'], content[i]['dataset_description'], "26")
         try:
-            r = requests.post(API_WP_CREATEPOSTS, data=payload, headers=API_WP_CREATEPOTS_HEADER)
+            r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
             print(r.status_code)
             print(json.loads(r.text))
         except Exception as error:

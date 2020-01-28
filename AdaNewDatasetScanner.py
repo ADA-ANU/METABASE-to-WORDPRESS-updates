@@ -65,9 +65,9 @@ def wpValidateBody(jwtToken):
     return body
 
 
-def wpCreatePostBody(jwtToken, title, content):
+def wpCreatePostBody(jwtToken, title, content,category):
 
-    body = "title={title}&content={content}&status=publish&categories=8&aam-jwt={token}".format(title=title, content=content, token=jwtToken)
+    body = "title={title}&content={content}&status=publish&categories={category}&aam-jwt={token}".format(title=title, content=content, category=category, token=jwtToken)
     return body
 
 def fetchMetabaseSessionToken():
@@ -124,7 +124,7 @@ def createWPposts(content):
     fetchDatasets()
     for i in range(len(content)):
         #if i < 1:
-        payload = wpCreatePostBody(fetchWPToken(), content[i]['dataset_title'], content[i]['dataset_description'])
+        payload = wpCreatePostBody(fetchWPToken(), content[i]['dataset_title'], content[i]['dataset_description'], "26")
         try:
             r = requests.post(API_WP_CREATEPOSTS, data=payload, headers=API_WP_CREATEPOTS_HEADER)
             print(r.status_code)

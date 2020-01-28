@@ -48,19 +48,15 @@ def fetchWPToken():
         print('ERROR', error)
 
 
-wpToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1Nzk4MjYzMTcsImlzcyI6Imh0dHA6XC9cL3N3LWRldi5hZGEuZWR1LmF1OjgwODUiLCJleHAiOjE1Nzk5MTI3MTcsImp0aSI6IjZkMDc2NDFhLTkwMDctNDc4NS04ZGY5LTAxMzEyZTUwOWY5YyIsInVzZXJJZCI6MTAsInJldm9jYWJsZSI6dHJ1ZSwicmVmcmVzaGFibGUiOmZhbHNlfQ.npMws6jPLUwyc0VfTem1RyHlgPPVXV_jlUtwk-hfzvg"
-    #fetchWPToken()
-
-
-def validateWPToken():
-    print(wpToken)
-    try:
-        r = requests.post(Constants.API_WP_VALIDATE, data=json.dumps(wpValidateBody(wpToken)), headers=Constants.API_WP_VALIDATE_HEADER)
-        if r.status_code == 200:
-            token = json.loads(r.text)['isValid']
-            return token
-    except Exception as error:
-        print('ERROR', error)
+# def validateWPToken():
+#
+#     try:
+#         r = requests.post(Constants.API_WP_VALIDATE, data=json.dumps(wpValidateBody(wpToken)), headers=Constants.API_WP_VALIDATE_HEADER)
+#         if r.status_code == 200:
+#             token = json.loads(r.text)['isValid']
+#             return token
+#     except Exception as error:
+#         print('ERROR', error)
 
 
 def fetchDatasets():

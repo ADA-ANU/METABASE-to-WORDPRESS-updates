@@ -1,8 +1,11 @@
+import urllib
 import requests
 import json
 import Constants
+import css
 
-dataSets = []
+newlyPublished = []
+newlyUpdated = []
 
 
 def datasetHeader(session_token):
@@ -23,9 +26,18 @@ def wpValidateBody(jwtToken):
     return body
 
 
-def wpCreatePostBody(jwtToken, title, content,category):
+def wpCreatePostBody(jwtToken, content, category):
 
-    body = "title={title}&content={content}&status=publish&categories={category}&aam-jwt={token}".format(title=title, content=content, category=category, token=jwtToken)
+    title = content['dataset_title']
+    p = "<p style=" + css.p + ">"
+    contents = p + "Dataset Link: <a href=" + urllib.parse.quote_plus(content['URL']) + " target='_blank'>Click Here</a></p>"
+    if category == "26":
+        contents += p + "Pubilication Date: " + content['publish date'] + "</p>"
+    elif category == "27":
+        contents += p + "Update Date: " + content['publication date'] + "</p>"
+    contents += p + "DOI: " + content['DOI'].split(":")[1] + "</p>"
+    contents += "<p style=" + css.content + ">" + content['dataset_description'] + "</p>"
+    body = "title={title}&content={content}&status=publish&categories={category}&aam-jwt={token}".format(title=title, content=contents, category=category, token=jwtToken)
     return body
 
 def fetchMetabaseSessionToken():
@@ -63,33 +75,46 @@ def fetchDatasets():
 
     sessionToken = fetchMetabaseSessionToken()
     try:
-        r = requests.post(Constants.API_DATASETS_QUERY, headers=datasetHeader(sessionToken))
+        r = requests.post(Constants.API_DATASETS_QUERY_NEWPUBLICATION, headers=datasetHeader(sessionToken))
         if r.status_code == 200:
             res = json.loads(r.text)
 
             if len(res) > 0:
                 for i in res:
-                    dataSets.append(i)
+                    newlyPublished.append(i)
+    except Exception as error:
+        print('ERROR', error)
+
+    try:
+        r = requests.post(Constants.API_DATASETS_QUERY_NEWPUPDATE, headers=datasetHeader(sessionToken))
+        if r.status_code == 200:
+            res = json.loads(r.text)
+
+            if len(res) > 0:
+                for i in res:
+                    newlyUpdated.append(i)
     except Exception as error:
         print('ERROR', error)
 
 
-def createWPposts(content):
-    fetchDatasets()
-    for i in range(len(content)):
-        #if i < 1:
-        print(content[i])
-        payload = wpCreatePostBody(fetchWPToken(), content[i]['dataset_title'], content[i]['dataset_description'], "26")
-        try:
-            r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
-            print(r.status_code)
-            print(json.loads(r.text))
-        except Exception as error:
-            print('ERROR', error)
+def createWPposts(content, category):
+    if len(content) > 0:
+        for i in range(len(content)):
+            if i < 1:
+                print(content[i])
+                payload = wpCreatePostBody(fetchWPToken(), content[i], category)
+                print(payload)
+                try:
+                    r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
+                    print(r.status_code)
+                    #print(json.loads(r.text))
+                except Exception as error:
+                    print('ERROR', error)
 
 
-
-createWPposts(dataSets)
+fetchDatasets()
+createWPposts(newlyPublished, "26")
+createWPposts(newlyUpdated, "27")
 
 
 

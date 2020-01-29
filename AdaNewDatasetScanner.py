@@ -3,9 +3,11 @@ import requests
 import json
 import Constants
 import css
+from datetime import datetime
 
 newlyPublished = []
 newlyUpdated = []
+wpToken = ""
 
 
 def datasetHeader(session_token):
@@ -34,6 +36,7 @@ def wpCreatePostBody(jwtToken, content, category):
     if category == "26":
         contents += p + "Pubilication Date: " + content['publish date'] + "</p>"
     elif category == "27":
+        contents += p + "Version: " + str(content['versionnumber']) + "." + str(content['minorversionnumber']) + "</p>"
         contents += p + "Update Date: " + content['publication date'] + "</p>"
     contents += p + "DOI: " + content['DOI'].split(":")[1] + "</p>"
     contents += "<p style=" + css.content + ">" + content['dataset_description'] + "</p>"
@@ -69,6 +72,38 @@ def fetchWPToken():
 #             return token
 #     except Exception as error:
 #         print('ERROR', error)
+
+
+def checkPostsDate(url):
+
+    try:
+        r = requests.get(url, headers=Constants.API_WP_POSTS_HEADER)
+        if r.status_code == 200:
+            res = json.loads(r.text)
+            for i in res:
+                date = i['date']
+                id = i['id']
+                if dateDiff(date):
+                    if id != 1598 and id != 1584:
+                        payload = "status=draft&aam-jwt={token}".format(token=fetchWPToken())
+                        try:
+                            r = requests.post(Constants.API_WP_UPDATEPOSTS+str(id), data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
+                            print(r.status_code)
+                        except Exception as error:
+                            print('ERROR', error)
+
+    except Exception as error:
+        print('ERROR', error)
+
+
+
+def dateDiff(date):
+    dateNow = datetime.now()
+    diff = dateNow - datetime.strptime(date, '%Y-%m-%dT%H:%M:%S')
+    if diff.days > Constants.dateDiff:
+        return True
+    else:
+        return False
 
 
 def fetchDatasets():
@@ -112,8 +147,10 @@ def createWPposts(content, category):
                     print('ERROR', error)
 
 
+checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
+checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
 fetchDatasets()
-createWPposts(newlyPublished, "26")
+#createWPposts(newlyPublished, "26")
 createWPposts(newlyUpdated, "27")
 
 

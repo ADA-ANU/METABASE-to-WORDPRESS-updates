@@ -4,10 +4,12 @@ import json
 import Constants
 import css
 from datetime import datetime
+import tweepy
 
 newlyPublished = []
 newlyUpdated = []
 wpToken = ""
+waitingToTweet = []
 
 
 def datasetHeader(session_token):
@@ -100,7 +102,7 @@ def checkPostsDate(url):
 def dateDiff(date):
     dateNow = datetime.now()
     diff = dateNow - datetime.strptime(date, '%Y-%m-%dT%H:%M:%S')
-    if diff.days > Constants.dateDiff:
+    if diff.days >= Constants.dateDiff:
         return True
     else:
         return False
@@ -147,12 +149,138 @@ def createWPposts(content, category):
                     print('ERROR', error)
 
 
-checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
-checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
+def createTwitterAPI():
+    # authentication of consumer key and secret
+    auth = tweepy.OAuthHandler(Constants.consumer_key, Constants.consumer_secret)
+
+    # authentication of access token and secret
+    auth.set_access_token(Constants.access_token, Constants.access_token_secret)
+    api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
+    try:
+        api.verify_credentials()
+    except:
+        print("Error during authentication")
+
+    return api
+
+def updateTwitter(content, category):
+
+    api = createTwitterAPI()
+    tweet = ""
+    if len(content) > 0:
+        for i in range(len(content)):
+            print(i)
+            temp = tweetCompositionSimple(content[i], i, category)
+            print(len(temp))
+            if len(temp) > 479:
+                tempT = temp[0:479] + "..."
+                waitingToTweet.append(tempT)
+            elif len(tweet) > 0 and len(tweet + tweetCompositionSimple(content[i], i, category)) > 479:
+                waitingToTweet.append(tweet)
+                tweet = tweetCompositionSimple(content[i], i, category)
+                if i == len(content) - 1:
+                    waitingToTweet.append(tweet)
+            else:
+                tweet += tweetCompositionSimple(content[i], i, category)
+                if i == len(content) - 1:
+                    waitingToTweet.append(tweet)
+
+    # update the status
+    #print(len(waitingToTweet[3]))
+    print(waitingToTweet)
+    print(len(waitingToTweet))
+    print(len(newlyPublished))
+    if len(waitingToTweet) > 0:
+        for i in waitingToTweet:
+            print()
+            try:
+                api.update_status(status=i)
+            except Exception as error:
+                print(error)
+
+
+def tweetComposition(content, num, category):
+    title = content['dataset_title']
+    description = content['dataset_description']
+    url = content['URL']
+    doi = content['DOI']
+    if category == "27":
+        publicationDate = content['publication date']
+        version = str(content['versionnumber']) + "." + str(content['minorversionnumber'])
+        if num == 0:
+            tweet = "Recently updated datasets on our Dataverse: " + "\r\n" \
+                + "\r\n" \
+                + str(num+1) + ". " + "Title: " + title + " (" + doi + ") " + "V" + version + "\r\n" \
+                + "Publication Date: " + publicationDate + "\r\n" \
+                + "URL: " + url + "\r\n" \
+                + "Description: " + description + "\r\n"
+
+        else:
+
+            tweet = str(num + 1) + ". " + "Title: " + title + " (" + doi + ") " + "V" + version + "\r\n" \
+                + "Publication Date: " + publicationDate + "\r\n" \
+                + "URL: " + url + "\r\n" \
+                + "Description: " + description + "\r\n"
+
+    else:
+        publicationDate = content['publish date']
+        if num == 0:
+            tweet = "Newly published datasets on our Dataverse: " + "\r\n" \
+                + "\r\n" \
+                + str(num + 1) + ". " + "Title: " + title + " (" + doi + ")" + "\r\n" \
+                + "Publication Date: " + publicationDate + "\r\n" \
+                + "URL: " + url + "\r\n" \
+                + "Description: " + description + "\r\n"
+
+        else:
+            tweet = str(num + 1) + ". " + "Title: " + title + " (" + doi + ")" + "\r\n" \
+                + "Publication Date: " + publicationDate + "\r\n" \
+                + "URL: " + url + "\r\n" \
+                + "Description: " + description + "\r\n"
+
+    return tweet
+
+
+def tweetCompositionSimple(content, num, category):
+    title = content['dataset_title']
+    description = content['dataset_description']
+    url = content['URL']
+    doi = content['DOI']
+    #print(len("https://dataverse-dev.ada.edu.au/dataset.xhtml?persistentId=doi:10.5072/FK2/ZGXFCA"))
+    if category == "27":
+        publicationDate = content['publication date']
+        version = str(content['versionnumber']) + "." + str(content['minorversionnumber'])
+        if num == 0:
+            tweet = "Recently updated datasets on our Dataverse: " + "\r\n" \
+                + "\r\n" \
+                + str(num+1) + ". " + title + " (" + doi + ") " + "V" + version + "\r\n" \
+                + url + "\r\n"
+        else:
+            tweet = str(num + 1) + ". " + title + " (" + doi + ") " + "V" + version + "\r\n" \
+                + url + "\r\n"
+
+
+    elif category == "26":
+        publicationDate = content['publish date']
+        if num == 0:
+            tweet = "Newly published datasets on our Dataverse: " + "\r\n" \
+                + "\r\n" \
+                + str(num + 1) + ". " + title + " (" + doi + ")" + "\r\n" \
+                + url + "\r\n"
+
+        else:
+            tweet = str(num + 1) + ". " + title + " (" + doi + ")" + "\r\n" \
+                + url + "\r\n" \
+
+    return tweet
+
+#checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
+#checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
 fetchDatasets()
 #createWPposts(newlyPublished, "26")
-createWPposts(newlyUpdated, "27")
-
+#createWPposts(newlyUpdated, "27")
+updateTwitter(newlyPublished, "26")
+#updateTwitter(newlyUpdated, "27")
 
 
 

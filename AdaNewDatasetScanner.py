@@ -33,10 +33,10 @@ def wpValidateBody(jwtToken):
 
 
 def wpCreatePostBody(jwtToken, content, category):
-
+    print(jwtToken)
     title = content['dataset_title']
     p = "<p style=" + css.p + ">"
-    contents = p + "Dataset Link: <a href=" + urllib.parse.quote_plus(content['URL']) + " target='_blank'>Click Here</a></p>"
+    contents = p + "Dataset Link: <a href=" + content['URL'] + " target='_blank'>Click Here</a></p>"
     if category == "26":
         contents += p + "Pubilication Date: " + content['publish date'] + "</p>"
     elif category == "27":
@@ -44,8 +44,17 @@ def wpCreatePostBody(jwtToken, content, category):
         contents += p + "Update Date: " + content['publication date'] + "</p>"
     contents += p + "DOI: " + content['DOI'].split(":")[1] + "</p>"
     contents += "<p style=" + css.content + ">" + content['dataset_description'] + "</p>"
-    body = "title={title}&content={content}&status=publish&categories={category}&aam-jwt={token}".format(title=title, content=contents, category=category, token=jwtToken)
+    #body = "title={title}&content={content}&status=publish&categories={category}&aam-jwt={token}".format(title=title, content=contents, category=category, token=jwtToken)
+    body = {
+            "title": title,
+            "status": "publish",
+            "content": contents,
+            "categories": category,
+            'aam-jwt': jwtToken
+            }
+
     return body
+
 
 def fetchMetabaseSessionToken():
     try:
@@ -139,16 +148,16 @@ def fetchDatasets():
 def createWPposts(content, category):
     if len(content) > 0:
         for i in range(len(content)):
-            if i < 1:
-                print(content[i])
-                payload = wpCreatePostBody(fetchWPToken(), content[i], category)
-                print(payload)
-                try:
-                    r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
-                    print(r.status_code)
-                    print(json.loads(r.text))
-                except Exception as error:
-                    print('ERROR', error)
+
+            print(content[i])
+            payload = wpCreatePostBody(fetchWPToken(), content[i], category)
+            print(payload)
+            try:
+                r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
+                print(r.status_code)
+                print(json.loads(r.text))
+            except Exception as error:
+                print('ERROR', error)
 
 
 def createTwitterAPI():
@@ -188,7 +197,6 @@ def updateTwitter(content, category):
                     waitingToTweet.append(tweet)
 
     # update the status
-    #print(len(waitingToTweet[3]))
 
     if len(waitingToTweet) > 0:
         for i in waitingToTweet:
@@ -197,6 +205,9 @@ def updateTwitter(content, category):
                 api.update_status(status=i)
             except Exception as error:
                 print(error)
+
+    waitingToTweet.clear()
+
 
 
 def tweetComposition(content, num, category):
@@ -274,15 +285,11 @@ def tweetCompositionSimple(content, num, category):
 
     return tweet
 
-print(newlyUpdated)
-#checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
-#checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
+#print(newlyPublished)
+checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
+checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
 fetchDatasets()
-#createWPposts(newlyPublished, "26")
+createWPposts(newlyPublished, "26")
 createWPposts(newlyUpdated, "27")
-#updateTwitter(newlyPublished, "26")
-#updateTwitter(newlyUpdated, "27")
-
-
-
-
+updateTwitter(newlyPublished, "26")
+updateTwitter(newlyUpdated, "27")

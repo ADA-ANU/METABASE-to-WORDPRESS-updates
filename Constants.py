@@ -17,6 +17,12 @@ API_DATASETS_QUERY_NEWPUPDATE = "https://dataverse-dev.ada.edu.au/metabase/api/c
 
 API_WP_CREATEPOSTS = "http://sw-dev.ada.edu.au:8085/wp-json/wp/v2/posts"
 
+API_DATAVERSES_PUBLISHDATASET = "https://dataverse-dev.ada.edu.au/api/datasets/"
+
+API_DATAVERSES_CREATEDATASET = "https://dataverse-dev.ada.edu.au/api/dataverses/DEV-ADA/datasets/"
+
+
+
 API_METABASE_AUTHENTICATION_HEADER = {
     'Content-Type': 'application/json'
 }
@@ -48,6 +54,10 @@ API_WP_VALIDATE_HEADER = {
 
 API_WP_CREATEPOTS_HEADER = {
     'Content-Type': 'application/x-www-form-urlencoded'
+}
+
+API_DATAVERSES_PUBLISHDATASET_HEADER = {
+    "X-Dataverse-key": env.dataverse_token
 }
 
 dateDiff = 14

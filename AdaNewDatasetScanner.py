@@ -5,6 +5,8 @@ import Constants
 import css
 from datetime import datetime
 import tweepy
+from pyDataverse.api import Api
+from pyDataverse.models import Dataverse
 
 newlyPublished = []
 newlyUpdated = []
@@ -144,7 +146,7 @@ def createWPposts(content, category):
                 try:
                     r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
                     print(r.status_code)
-                    #print(json.loads(r.text))
+                    print(json.loads(r.text))
                 except Exception as error:
                     print('ERROR', error)
 
@@ -169,9 +171,9 @@ def updateTwitter(content, category):
     tweet = ""
     if len(content) > 0:
         for i in range(len(content)):
-            print(i)
+
             temp = tweetCompositionSimple(content[i], i, category)
-            print(len(temp))
+
             if len(temp) > 479:
                 tempT = temp[0:479] + "..."
                 waitingToTweet.append(tempT)
@@ -187,12 +189,10 @@ def updateTwitter(content, category):
 
     # update the status
     #print(len(waitingToTweet[3]))
-    print(waitingToTweet)
-    print(len(waitingToTweet))
-    print(len(newlyPublished))
+
     if len(waitingToTweet) > 0:
         for i in waitingToTweet:
-            print()
+
             try:
                 api.update_status(status=i)
             except Exception as error:
@@ -274,12 +274,13 @@ def tweetCompositionSimple(content, num, category):
 
     return tweet
 
+print(newlyUpdated)
 #checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
 #checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
 fetchDatasets()
 #createWPposts(newlyPublished, "26")
-#createWPposts(newlyUpdated, "27")
-updateTwitter(newlyPublished, "26")
+createWPposts(newlyUpdated, "27")
+#updateTwitter(newlyPublished, "26")
 #updateTwitter(newlyUpdated, "27")
 
 

@@ -289,11 +289,12 @@ def tweetCompositionSimple(content, num, category):
 
 
 def main():
+    print("Executing...")
     checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
     checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
     fetchDatasets()
-    #createWPposts(newlyPublished, "26")
-    #createWPposts(newlyUpdated, "27")
+    createWPposts(newlyPublished, "26")
+    createWPposts(newlyUpdated, "27")
     updateTwitter(newlyPublished, "26")
     updateTwitter(newlyUpdated, "27")
 

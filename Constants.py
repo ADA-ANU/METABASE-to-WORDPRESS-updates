@@ -1,4 +1,7 @@
-import env
+import dotenv
+import os
+dotenv.load_dotenv()
+
 API_METABASE_AUTHENTICATION_ENDPOINT = "https://dataverse-dev.ada.edu.au/metabase/api/session"
 
 API_WP_AUTHENTICATION_ENDPOINT = "http://sw-dev.ada.edu.au:8085/wp-json/aam/v2/authenticate"
@@ -22,14 +25,13 @@ API_DATAVERSES_PUBLISHDATASET = "https://dataverse-dev.ada.edu.au/api/datasets/"
 API_DATAVERSES_CREATEDATASET = "https://dataverse-dev.ada.edu.au/api/dataverses/DEV-ADA/datasets/"
 
 
-
 API_METABASE_AUTHENTICATION_HEADER = {
     'Content-Type': 'application/json'
 }
 
 API_METABASE_AUTHENTICATION_BODY = {
-    "username": env.METABASE_USERNAME,
-    "password": env.METABASE_PASSWORD
+    "username": os.getenv("METABASE_USERNAME"),
+    "password": os.getenv("METABASE_PASSWORD")
 }
 
 API_WP_AUTHENTICATION_HEADER = {
@@ -43,8 +45,8 @@ API_WP_POSTS_HEADER = {
 }
 
 API_WP_AUTHENTICATION_BODY = {
-    "username": env.WP_USERNAME,
-    "password": env.WP_PASSWORD,
+    "username": os.getenv("WP_USERNAME"),
+    "password": os.getenv("WP_PASSWORD"),
     "issueJWT": "true"
 }
 
@@ -57,13 +59,16 @@ API_WP_CREATEPOTS_HEADER = {
 }
 
 API_DATAVERSES_PUBLISHDATASET_HEADER = {
-    "X-Dataverse-key": env.dataverse_token
+    "X-Dataverse-key": os.getenv("DATAVERSE_TOKEN")
 }
 
 dateDiff = 14
 
-consumer_key = env.consumer_key
-consumer_secret = env.consumer_secret
-
-access_token = env.access_token
-access_token_secret = env.access_token_secret
+consumer_key = os.getenv("CONSUMER_KEY")
+print(consumer_key)
+consumer_secret = os.getenv("CONSUMER_SECRET")
+print(consumer_secret)
+access_token = os.getenv("ACCESS_TOKEN")
+print(access_token)
+access_token_secret = os.getenv("ACCESS_TOKEN_SECRET")
+print(access_token_secret)

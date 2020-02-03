@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import urllib
 import requests
 import json
@@ -5,6 +6,7 @@ import Constants
 import css
 from datetime import datetime
 import tweepy
+
 from pyDataverse.api import Api
 from pyDataverse.models import Dataverse
 
@@ -151,7 +153,6 @@ def createWPposts(content, category):
 
             print(content[i])
             payload = wpCreatePostBody(fetchWPToken(), content[i], category)
-            print(payload)
             try:
                 r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
                 print(r.status_code)
@@ -162,6 +163,7 @@ def createWPposts(content, category):
 
 def createTwitterAPI():
     # authentication of consumer key and secret
+
     auth = tweepy.OAuthHandler(Constants.consumer_key, Constants.consumer_secret)
 
     # authentication of access token and secret
@@ -257,7 +259,7 @@ def tweetCompositionSimple(content, num, category):
     description = content['dataset_description']
     url = content['URL']
     doi = content['DOI']
-    #print(len("https://dataverse-dev.ada.edu.au/dataset.xhtml?persistentId=doi:10.5072/FK2/ZGXFCA"))
+
     if category == "27":
         publicationDate = content['publication date']
         version = str(content['versionnumber']) + "." + str(content['minorversionnumber'])
@@ -285,11 +287,20 @@ def tweetCompositionSimple(content, num, category):
 
     return tweet
 
-#print(newlyPublished)
-checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
-checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
-fetchDatasets()
-createWPposts(newlyPublished, "26")
-createWPposts(newlyUpdated, "27")
-updateTwitter(newlyPublished, "26")
-updateTwitter(newlyUpdated, "27")
+
+def main():
+    checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
+    checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
+    fetchDatasets()
+    #createWPposts(newlyPublished, "26")
+    #createWPposts(newlyUpdated, "27")
+    updateTwitter(newlyPublished, "26")
+    updateTwitter(newlyUpdated, "27")
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+

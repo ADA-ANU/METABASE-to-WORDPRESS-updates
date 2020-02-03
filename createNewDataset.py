@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import requests
 import json
 import Constants
@@ -48,7 +49,8 @@ def updateDataset(id):
         print('ERROR', error)
 
 
-updateDataset("2058")
+
+#updateDataset("2058")
 #createDataset("MJP's test")
 
 

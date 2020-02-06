@@ -4,7 +4,7 @@ COPY AdaWPBot.py /bot/
 COPY Constants.py /bot/
 COPY css.py /bot/
 COPY .env /bot/
-COPY requirements.txt /tmp
+COPY requirements.txt /tmp/
 WORKDIR /bot
 #RUN apk --update add python py-pip openssl ca-certificates py-openssl wget
 #RUN apk --update add --virtual build-dependencies libffi-dev openssl-dev python-dev py-pip build-base \

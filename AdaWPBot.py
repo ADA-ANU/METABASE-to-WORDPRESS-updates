@@ -35,7 +35,6 @@ def wpValidateBody(jwtToken):
 
 
 def wpCreatePostBody(jwtToken, content, category):
-    print(jwtToken)
     title = content['dataset_title']
     p = "<p style=" + css.p + ">"
     contents = p + "Dataset Link: <a href=" + content['URL'] + " target='_blank'>Click Here</a></p>"
@@ -122,7 +121,7 @@ def dateDiff(date):
 
 
 def fetchDatasets():
-
+    print("Ada WP Bot is fetching data from Metabase")
     sessionToken = fetchMetabaseSessionToken()
     try:
         r = requests.post(Constants.API_DATASETS_QUERY_NEWPUBLICATION, headers=datasetHeader(sessionToken))
@@ -145,21 +144,27 @@ def fetchDatasets():
                     newlyUpdated.append(i)
     except Exception as error:
         print('ERROR', error)
-
+    print("Fetch done.")
 
 def createWPposts(content, category):
     if len(content) > 0:
         for i in range(len(content)):
 
-            print(content[i])
             payload = wpCreatePostBody(fetchWPToken(), content[i], category)
             try:
                 r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
                 print(r.status_code)
-                print(json.loads(r.text))
             except Exception as error:
                 print('ERROR', error)
-
+        if category == "26":
+            print(str(len(content)) + " Newly Published Dataset have been updated.")
+        elif category == "27":
+            print(str(len(content)) + " Recently Updated Dataset have been updated.")
+    else:
+        if category == "26":
+            print("There is no Newly Published Dataset.")
+        elif category == "27":
+            print("There is no Recently Updated Dataset.")
 
 def createTwitterAPI():
     # authentication of consumer key and secret
@@ -293,10 +298,12 @@ def main():
     checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
     checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
     fetchDatasets()
+    print("Ada WP Bot is uploading the Newly Published Dataset.")
     createWPposts(newlyPublished, "26")
+    print("Ada WP Bot is uploading Recently Updated Dataset.")
     createWPposts(newlyUpdated, "27")
-    updateTwitter(newlyPublished, "26")
-    updateTwitter(newlyUpdated, "27")
+    #updateTwitter(newlyPublished, "26")
+    #updateTwitter(newlyUpdated, "27")
 
 
 if __name__ == "__main__":

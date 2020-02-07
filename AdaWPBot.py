@@ -14,6 +14,8 @@ newlyPublished = []
 newlyUpdated = []
 wpToken = ""
 waitingToTweet = []
+Pcount = 0
+Ucount = 0
 
 
 def datasetHeader(session_token):
@@ -62,6 +64,7 @@ def fetchMetabaseSessionToken():
         r = requests.post(Constants.API_METABASE_AUTHENTICATION_ENDPOINT, data=json.dumps(Constants.API_METABASE_AUTHENTICATION_BODY), headers=Constants.API_METABASE_AUTHENTICATION_HEADER)
         if r.status_code == 200:
             token = (json.loads(r.text)["id"])
+            print(token)
             return token
     except Exception as error:
         print('ERROR', error)
@@ -147,19 +150,24 @@ def fetchDatasets():
     print("Fetch done.")
 
 def createWPposts(content, category):
+    global Pcount, Ucount
     if len(content) > 0:
         for i in range(len(content)):
 
             payload = wpCreatePostBody(fetchWPToken(), content[i], category)
             try:
                 r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
+                if category == "26":
+                    Pcount += 1
+                elif category == "27":
+                    Ucount += 1
                 print(r.status_code)
             except Exception as error:
                 print('ERROR', error)
         if category == "26":
-            print(str(len(content)) + " Newly Published Dataset have been updated.")
+            print(str(len(Pcount)) + " Newly Published Dataset have been updated.")
         elif category == "27":
-            print(str(len(content)) + " Recently Updated Dataset have been updated.")
+            print(str(len(Ucount)) + " Recently Updated Dataset have been updated.")
     else:
         if category == "26":
             print("There is no Newly Published Dataset.")
@@ -298,6 +306,8 @@ def main():
     checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
     checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
     fetchDatasets()
+    print("There are " + str(len(newlyPublished)) + " Newly Published Dataset.")
+    print("There are " + str(len(newlyUpdated)) + " Newly Updated Dataset.")
     print("Ada WP Bot is uploading the Newly Published Dataset.")
     createWPposts(newlyPublished, "26")
     print("Ada WP Bot is uploading Recently Updated Dataset.")

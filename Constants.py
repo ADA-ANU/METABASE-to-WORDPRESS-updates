@@ -17,8 +17,8 @@ API_WP_VALIDATE = "http://sw-dev.ada.edu.au:8085/wp-json/aam/v1/validate-jwt"
 API_DATASETS_QUERY_NEWPUBLICATION = "https://dataverse-dev.ada.edu.au/metabase/api/card/295/query/json"
 
 API_DATASETS_QUERY_NEWPUPDATE = "https://dataverse-dev.ada.edu.au/metabase/api/card/296/query/json"
-#sw-dev.ada.edu.au
-API_WP_CREATEPOSTS = "http://127.0.0.1:8085/wp-json/wp/v2/posts"
+#
+API_WP_CREATEPOSTS = "http://sw-dev.ada.edu.au:8085/wp-json/wp/v2/posts"
 
 API_DATAVERSES_PUBLISHDATASET = "https://dataverse-dev.ada.edu.au/api/datasets/"
 

@@ -64,7 +64,6 @@ def fetchMetabaseSessionToken():
         r = requests.post(Constants.API_METABASE_AUTHENTICATION_ENDPOINT, data=json.dumps(Constants.API_METABASE_AUTHENTICATION_BODY), headers=Constants.API_METABASE_AUTHENTICATION_HEADER)
         if r.status_code == 200:
             token = (json.loads(r.text)["id"])
-            print(token)
             return token
     except Exception as error:
         print('ERROR', error)

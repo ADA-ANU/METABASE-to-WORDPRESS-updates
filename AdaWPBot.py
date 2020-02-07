@@ -164,9 +164,9 @@ def createWPposts(content, category):
             except Exception as error:
                 print('ERROR', error)
         if category == "26":
-            print(str(len(Pcount)) + " Newly Published Dataset have been updated.")
+            print(Pcount + " Newly Published Dataset have been updated.")
         elif category == "27":
-            print(str(len(Ucount)) + " Recently Updated Dataset have been updated.")
+            print(Ucount + " Recently Updated Dataset have been updated.")
     else:
         if category == "26":
             print("There is no Newly Published Dataset.")

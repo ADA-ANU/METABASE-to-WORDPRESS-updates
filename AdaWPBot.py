@@ -6,6 +6,7 @@ import Constants
 import css
 from datetime import datetime
 import tweepy
+import pytz
 
 from pyDataverse.api import Api
 from pyDataverse.models import Dataverse
@@ -16,6 +17,13 @@ wpToken = ""
 waitingToTweet = []
 Pcount = 0
 Ucount = 0
+
+
+def currentDateTime():
+    d_naive = datetime.now()
+    timezone = pytz.timezone("Australia/ACT")
+    d_aware = timezone.localize(d_naive).strftime('%Y-%m-%d %H:%M:%S')
+    return d_aware
 
 
 def datasetHeader(session_token):
@@ -123,7 +131,7 @@ def dateDiff(date):
 
 
 def fetchDatasets():
-    print("Ada WP Bot is fetching data from Metabase")
+    print(currentDateTime() + " Ada WP Bot is fetching data from Metabase")
     sessionToken = fetchMetabaseSessionToken()
     try:
         r = requests.post(Constants.API_DATASETS_QUERY_NEWPUBLICATION, headers=datasetHeader(sessionToken))
@@ -146,7 +154,7 @@ def fetchDatasets():
                     newlyUpdated.append(i)
     except Exception as error:
         print('ERROR', error)
-    print("Fetch done.")
+    print(currentDateTime() + " Fetch done.")
 
 def createWPposts(content, category):
     global Pcount, Ucount
@@ -164,14 +172,14 @@ def createWPposts(content, category):
             except Exception as error:
                 print('ERROR', error)
         if category == "26":
-            print(str(Pcount) + " Newly Published Dataset have been updated.")
+            print(currentDateTime() + " " + str(Pcount) + " Newly Published Dataset have been updated.")
         elif category == "27":
-            print(str(Ucount) + " Recently Updated Dataset have been updated.")
+            print(currentDateTime() + " " + str(Ucount) + " Recently Updated Dataset have been updated.")
     else:
         if category == "26":
-            print("There is no Newly Published Dataset.")
+            print(currentDateTime() + " There is no Newly Published Dataset.")
         elif category == "27":
-            print("There is no Recently Updated Dataset.")
+            print(currentDateTime() + " There is no Recently Updated Dataset.")
 
 def createTwitterAPI():
     # authentication of consumer key and secret
@@ -301,15 +309,15 @@ def tweetCompositionSimple(content, num, category):
 
 
 def main():
-    print("Executing...")
+    print(currentDateTime() + " Executing...")
     checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
     checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
     fetchDatasets()
-    print("There are " + str(len(newlyPublished)) + " Newly Published Dataset.")
-    print("There are " + str(len(newlyUpdated)) + " Newly Updated Dataset.")
-    print("Ada WP Bot is uploading the Newly Published Dataset.")
+    print(currentDateTime() + " There are " + str(len(newlyPublished)) + " Newly Published Dataset.")
+    print(currentDateTime() + " There are " + str(len(newlyUpdated)) + " Newly Updated Dataset.")
+    print(currentDateTime() + " Ada WP Bot is uploading the Newly Published Dataset.")
     createWPposts(newlyPublished, "26")
-    print("Ada WP Bot is uploading Recently Updated Dataset.")
+    print(currentDateTime() + " Ada WP Bot is uploading Recently Updated Dataset.")
     createWPposts(newlyUpdated, "27")
     #updateTwitter(newlyPublished, "26")
     #updateTwitter(newlyUpdated, "27")

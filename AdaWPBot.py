@@ -315,12 +315,12 @@ def main():
     fetchDatasets()
     print(currentDateTime() + " There are " + str(len(newlyPublished)) + " Newly Published Dataset.")
     print(currentDateTime() + " There are " + str(len(newlyUpdated)) + " Newly Updated Dataset.")
-    print(currentDateTime() + " Ada WP Bot is uploading the Newly Published Dataset.")
-    createWPposts(newlyPublished, "26")
-    print(currentDateTime() + " Ada WP Bot is uploading Recently Updated Dataset.")
-    createWPposts(newlyUpdated, "27")
-    #updateTwitter(newlyPublished, "26")
-    #updateTwitter(newlyUpdated, "27")
+    if len(newlyPublished) > 0:
+        print(currentDateTime() + " Ada WP Bot is uploading the Newly Published Dataset.")
+        createWPposts(newlyPublished, "26")
+    if len(newlyUpdated) > 0:
+        print(currentDateTime() + " Ada WP Bot is uploading Recently Updated Dataset.")
+        createWPposts(newlyUpdated, "27")
 
 
 if __name__ == "__main__":

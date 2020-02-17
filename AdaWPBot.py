@@ -45,6 +45,7 @@ def wpValidateBody(jwtToken):
 
 
 def wpCreatePostBody(jwtToken, content, category):
+    print(content['dataset_description'])
     title = content['dataset_title']
     p = "<p style=" + css.p + ">"
     contents = p + "Dataset Link: <a href=" + content['URL'] + " target='_blank'>Click Here</a></p>"
@@ -83,6 +84,8 @@ def fetchWPToken():
         if r.status_code == 200:
             token = json.loads(r.text)['jwt']['token']
             return token
+        else:
+            print(json.loads(r.text))
     except Exception as error:
         print('ERROR', error)
 
@@ -162,11 +165,12 @@ def createWPposts(content, category):
         for i in range(len(content)):
 
             payload = wpCreatePostBody(fetchWPToken(), content[i], category)
+            print(payload)
             try:
                 r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
-                if category == "26":
+                if category == "26" and r.status_code == 200 or r.status_code == 201:
                     Pcount += 1
-                elif category == "27":
+                elif category == "27" and r.status_code == 200 or r.status_code == 201:
                     Ucount += 1
                 print(r.status_code)
             except Exception as error:

@@ -64,7 +64,7 @@ def wpCreatePostBody(jwtToken, content, category):
             "categories": category,
             'aam-jwt': jwtToken
             }
-
+    print(body)
     return body
 
 

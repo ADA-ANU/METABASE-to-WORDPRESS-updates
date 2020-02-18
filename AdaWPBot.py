@@ -45,7 +45,7 @@ def wpValidateBody(jwtToken):
 
 
 def wpCreatePostBody(jwtToken, content, category):
-    print(content)
+    print(content['dataset_description'])
     title = content['dataset_title']
     p = "<p style=" + css.p + ">"
     contents = p + "Dataset Link: <a href=" + content['URL'] + " target='_blank'>Click Here</a></p>"

@@ -165,7 +165,6 @@ def createWPposts(content, category):
     for i in range(len(content)):
         print("Uploading " + str(i+1) + " post.")
         payload = wpCreatePostBody(fetchWPToken(), content[i], category)
-        print(payload)
         try:
             r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
             if category == "26" and r.status_code == 200 or r.status_code == 201:

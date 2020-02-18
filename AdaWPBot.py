@@ -159,31 +159,27 @@ def fetchDatasets():
         print('ERROR', error)
     print(currentDateTime() + " Fetch done.")
 
+
 def createWPposts(content, category):
     global Pcount, Ucount
-    if len(content) > 0:
-        for i in range(len(content)):
 
-            payload = wpCreatePostBody(fetchWPToken(), content[i], category)
-            print(payload)
-            try:
-                r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
-                if category == "26" and r.status_code == 200 or r.status_code == 201:
-                    Pcount += 1
-                elif category == "27" and r.status_code == 200 or r.status_code == 201:
-                    Ucount += 1
-                print(r.status_code)
-            except Exception as error:
-                print('ERROR', error)
-        if category == "26":
-            print(currentDateTime() + " " + str(Pcount) + " Newly Published Dataset have been updated.")
-        elif category == "27":
-            print(currentDateTime() + " " + str(Ucount) + " Recently Updated Dataset have been updated.")
-    else:
-        if category == "26":
-            print(currentDateTime() + " There is no Newly Published Dataset.")
-        elif category == "27":
-            print(currentDateTime() + " There is no Recently Updated Dataset.")
+    for i in range(len(content)):
+        print("Uploading " + str(i+1) + " post.")
+        payload = wpCreatePostBody(fetchWPToken(), content[i], category)
+        try:
+            r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
+            if category == "26" and r.status_code == 200 or r.status_code == 201:
+                Pcount += 1
+            elif category == "27" and r.status_code == 200 or r.status_code == 201:
+                Ucount += 1
+            print(r.status_code)
+        except Exception as error:
+            print('ERROR', error)
+    if category == "26":
+        print(currentDateTime() + " " + str(Pcount) + " Newly Published Dataset have been updated.")
+    elif category == "27":
+        print(currentDateTime() + " " + str(Ucount) + " Recently Updated Dataset have been updated.")
+
 
 def createTwitterAPI():
     # authentication of consumer key and secret

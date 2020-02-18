@@ -170,7 +170,6 @@ def createWPposts(content, category):
             if category == "26" and r.status_code == 200 or r.status_code == 201:
                 Pcount += 1
             if category == "27" and r.status_code == 200 or r.status_code == 201:
-                print("plus 1")
                 Ucount += 1
             print(r.status_code)
         except Exception as error:

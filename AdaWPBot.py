@@ -8,9 +8,6 @@ from datetime import datetime
 import tweepy
 import pytz
 
-from pyDataverse.api import Api
-from pyDataverse.models import Dataverse
-
 newlyPublished = []
 newlyUpdated = []
 wpToken = ""
@@ -44,25 +41,35 @@ def wpValidateBody(jwtToken):
     return body
 
 
+def smart_truncate(content, length=100, suffix=' ...'):
+    if len(content) <= length:
+        return content
+    else:
+        return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
+
+
 def wpCreatePostBody(jwtToken, content, category):
 
     title = content['dataset_title']
     p = "<p style=" + css.p + ">"
     contents = p + "Dataset Link: <a href=" + content['URL'] + " target='_blank'>Click Here</a></p>"
-    if category == "26":
+    if category == Constants.CATEGORY_NEWPOST:
         contents += p + "Pubilication Date: " + content['publish date'] + "</p>"
-    elif category == "27":
+    elif category == Constants.CATEGORY_UPDATEDPOST:
         contents += p + "Version: " + str(content['versionnumber']) + "." + str(content['minorversionnumber']) + "</p>"
         contents += p + "Update Date: " + content['publication date'] + "</p>"
     contents += p + "DOI: " + content['DOI'].split(":")[1] + "</p>"
     contents += "<p style=" + css.content + ">" + content['dataset_description'] + "</p>"
+    excerpt = smart_truncate(content['dataset_description'], 200)
+
     #body = "title={title}&content={content}&status=publish&categories={category}&aam-jwt={token}".format(title=title, content=contents, category=category, token=jwtToken)
     body = {
             "title": title,
             "status": "publish",
             "content": contents,
             "categories": category,
-            'aam-jwt': jwtToken
+            'aam-jwt': jwtToken,
+            'excerpt': excerpt
             }
     return body
 
@@ -110,7 +117,7 @@ def checkPostsDate(url):
                 date = i['date']
                 id = i['id']
                 if dateDiff(date):
-                    if id != 1598 and id != 1584:
+                    if id != 2047 and id != 2049:
                         payload = "status=draft&aam-jwt={token}".format(token=fetchWPToken())
                         try:
                             r = requests.post(Constants.API_WP_UPDATEPOSTS+str(id), data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
@@ -167,16 +174,16 @@ def createWPposts(content, category):
         payload = wpCreatePostBody(fetchWPToken(), content[i], category)
         try:
             r = requests.post(Constants.API_WP_CREATEPOSTS, data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
-            if category == "26" and r.status_code == 200 or r.status_code == 201:
+            if category == Constants.CATEGORY_NEWPOST and r.status_code == 200 or r.status_code == 201:
                 Pcount += 1
-            if category == "27" and r.status_code == 200 or r.status_code == 201:
+            if category == Constants.CATEGORY_UPDATEDPOST and r.status_code == 200 or r.status_code == 201:
                 Ucount += 1
             print(r.status_code)
         except Exception as error:
             print('ERROR', error)
-    if category == "26":
+    if category == Constants.CATEGORY_NEWPOST:
         print(currentDateTime() + " " + str(Pcount) + " Newly Published Dataset have been updated.")
-    elif category == "27":
+    elif category == Constants.CATEGORY_UPDATEDPOST:
         print(currentDateTime() + " " + str(Ucount) + " Recently Updated Dataset have been updated.")
 
 
@@ -195,117 +202,6 @@ def createTwitterAPI():
 
     return api
 
-def updateTwitter(content, category):
-
-    api = createTwitterAPI()
-    tweet = ""
-    if len(content) > 0:
-        for i in range(len(content)):
-
-            temp = tweetCompositionSimple(content[i], i, category)
-
-            if len(temp) > 479:
-                tempT = temp[0:479] + "..."
-                waitingToTweet.append(tempT)
-            elif len(tweet) > 0 and len(tweet + tweetCompositionSimple(content[i], i, category)) > 479:
-                waitingToTweet.append(tweet)
-                tweet = tweetCompositionSimple(content[i], i, category)
-                if i == len(content) - 1:
-                    waitingToTweet.append(tweet)
-            else:
-                tweet += tweetCompositionSimple(content[i], i, category)
-                if i == len(content) - 1:
-                    waitingToTweet.append(tweet)
-
-    # update the status
-
-    if len(waitingToTweet) > 0:
-        for i in waitingToTweet:
-
-            try:
-                api.update_status(status=i)
-            except Exception as error:
-                print(error)
-
-    waitingToTweet.clear()
-
-
-
-def tweetComposition(content, num, category):
-    title = content['dataset_title']
-    description = content['dataset_description']
-    url = content['URL']
-    doi = content['DOI']
-    if category == "27":
-        publicationDate = content['publication date']
-        version = str(content['versionnumber']) + "." + str(content['minorversionnumber'])
-        if num == 0:
-            tweet = "Recently updated datasets on our Dataverse: " + "\r\n" \
-                + "\r\n" \
-                + str(num+1) + ". " + "Title: " + title + " (" + doi + ") " + "V" + version + "\r\n" \
-                + "Publication Date: " + publicationDate + "\r\n" \
-                + "URL: " + url + "\r\n" \
-                + "Description: " + description + "\r\n"
-
-        else:
-
-            tweet = str(num + 1) + ". " + "Title: " + title + " (" + doi + ") " + "V" + version + "\r\n" \
-                + "Publication Date: " + publicationDate + "\r\n" \
-                + "URL: " + url + "\r\n" \
-                + "Description: " + description + "\r\n"
-
-    else:
-        publicationDate = content['publish date']
-        if num == 0:
-            tweet = "Newly published datasets on our Dataverse: " + "\r\n" \
-                + "\r\n" \
-                + str(num + 1) + ". " + "Title: " + title + " (" + doi + ")" + "\r\n" \
-                + "Publication Date: " + publicationDate + "\r\n" \
-                + "URL: " + url + "\r\n" \
-                + "Description: " + description + "\r\n"
-
-        else:
-            tweet = str(num + 1) + ". " + "Title: " + title + " (" + doi + ")" + "\r\n" \
-                + "Publication Date: " + publicationDate + "\r\n" \
-                + "URL: " + url + "\r\n" \
-                + "Description: " + description + "\r\n"
-
-    return tweet
-
-
-def tweetCompositionSimple(content, num, category):
-    title = content['dataset_title']
-    description = content['dataset_description']
-    url = content['URL']
-    doi = content['DOI']
-
-    if category == "27":
-        publicationDate = content['publication date']
-        version = str(content['versionnumber']) + "." + str(content['minorversionnumber'])
-        if num == 0:
-            tweet = "Recently updated datasets on our Dataverse: " + "\r\n" \
-                + "\r\n" \
-                + str(num+1) + ". " + title + " (" + doi + ") " + "V" + version + "\r\n" \
-                + url + "\r\n"
-        else:
-            tweet = str(num + 1) + ". " + title + " (" + doi + ") " + "V" + version + "\r\n" \
-                + url + "\r\n"
-
-
-    elif category == "26":
-        publicationDate = content['publish date']
-        if num == 0:
-            tweet = "Newly published datasets on our Dataverse: " + "\r\n" \
-                + "\r\n" \
-                + str(num + 1) + ". " + title + " (" + doi + ")" + "\r\n" \
-                + url + "\r\n"
-
-        else:
-            tweet = str(num + 1) + ". " + title + " (" + doi + ")" + "\r\n" \
-                + url + "\r\n" \
-
-    return tweet
-
 
 def main():
     print(currentDateTime() + " Executing...")
@@ -316,10 +212,10 @@ def main():
     print(currentDateTime() + " There are " + str(len(newlyUpdated)) + " Newly Updated Dataset.")
     if len(newlyPublished) > 0:
         print(currentDateTime() + " Ada WP Bot is uploading the Newly Published Dataset.")
-        createWPposts(newlyPublished, "26")
+        createWPposts(newlyPublished, Constants.CATEGORY_NEWPOST)
     if len(newlyUpdated) > 0:
         print(currentDateTime() + " Ada WP Bot is uploading Recently Updated Dataset.")
-        createWPposts(newlyUpdated, "27")
+        createWPposts(newlyUpdated, Constants.CATEGORY_UPDATEDPOST)
 
 
 if __name__ == "__main__":

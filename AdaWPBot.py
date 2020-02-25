@@ -151,7 +151,7 @@ def fetchDatasets():
                 for i in res:
                     newlyPublished.append(i)
         else:
-            print(json.loads(r.text))
+            print(r)
 
     except Exception as error:
         print('ERROR', error)
@@ -165,7 +165,7 @@ def fetchDatasets():
                 for i in res:
                     newlyUpdated.append(i)
             else:
-                print(json.loads(r.text))
+                print(r)
     except Exception as error:
         print('ERROR', error)
     print(currentDateTime() + " Fetch done.")

@@ -7,6 +7,7 @@ import css
 from datetime import datetime
 import tweepy
 import pytz
+from time import sleep
 
 newlyPublished = []
 newlyUpdated = []
@@ -80,8 +81,11 @@ def fetchMetabaseSessionToken():
         if r.status_code == 200:
             token = (json.loads(r.text)["id"])
             return token
+        else:
+            print("Failed to fetch Metabase token.")
     except Exception as error:
         print('ERROR', error)
+        print("Failed to fetch Metabase token.")
 
 
 def fetchWPToken():
@@ -92,8 +96,10 @@ def fetchWPToken():
             return token
         else:
             print(json.loads(r.text))
+            print("Failed to fetch WP token.")
     except Exception as error:
         print('ERROR', error)
+        print("Failed to fetch WP token.")
 
 
 # def validateWPToken():
@@ -151,10 +157,11 @@ def fetchDatasets():
                 for i in res:
                     newlyPublished.append(i)
         else:
-            print(r)
+            print("Failed to fetch newly published data from Metabase.")
 
     except Exception as error:
         print('ERROR', error)
+        print("Failed to fetch newly published data from Metabase.")
 
     try:
         r = requests.post(Constants.API_DATASETS_QUERY_NEWPUPDATE, headers=datasetHeader(sessionToken))
@@ -164,10 +171,12 @@ def fetchDatasets():
             if len(res) > 0:
                 for i in res:
                     newlyUpdated.append(i)
-            else:
-                print(r)
+        else:
+            print(r)
+            print("Failed to fetch recently updated data from Metabase.")
     except Exception as error:
         print('ERROR', error)
+        print("Failed to fetch recently updated data from Metabase.")
     print(currentDateTime() + " Fetch done.")
 
 
@@ -183,6 +192,7 @@ def createWPposts(content, category):
                 Pcount += 1
             if category == Constants.CATEGORY_UPDATEDPOST and r.status_code == 200 or r.status_code == 201:
                 Ucount += 1
+            sleep(2)
             print(r.status_code)
         except Exception as error:
             print('ERROR', error)
@@ -190,22 +200,6 @@ def createWPposts(content, category):
         print(currentDateTime() + " " + str(Pcount) + " Newly Published Dataset have been updated.")
     elif category == Constants.CATEGORY_UPDATEDPOST:
         print(currentDateTime() + " " + str(Ucount) + " Recently Updated Dataset have been updated.")
-
-
-def createTwitterAPI():
-    # authentication of consumer key and secret
-
-    auth = tweepy.OAuthHandler(Constants.consumer_key, Constants.consumer_secret)
-
-    # authentication of access token and secret
-    auth.set_access_token(Constants.access_token, Constants.access_token_secret)
-    api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
-    try:
-        api.verify_credentials()
-    except:
-        print("Error during authentication")
-
-    return api
 
 
 def main():

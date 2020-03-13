@@ -204,8 +204,8 @@ def createWPposts(content, category):
 
 def main():
     print(currentDateTime() + " Executing...")
-    checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
-    checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
+    # checkPostsDate(Constants.API_WP_GETPOSTS_PUBLISH)
+    # checkPostsDate(Constants.API_WP_GETPOSTS_UPDATE)
     fetchDatasets()
     print(currentDateTime() + " There are " + str(len(newlyPublished)) + " Newly Published Dataset.")
     print(currentDateTime() + " There are " + str(len(newlyUpdated)) + " Newly Updated Dataset.")

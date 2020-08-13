@@ -8,6 +8,7 @@ from datetime import datetime
 import tweepy
 import pytz
 from time import sleep
+from urllib.request import urlopen
 
 newlyPublished = []
 newlyUpdated = []
@@ -135,6 +136,45 @@ def checkPostsDate(url):
         print('ERROR', error)
 
 
+def checkPostsStatus(url):
+    print(currentDateTime() + " Checking posts' status...")
+    try:
+        # with urlopen("https://sunlightlabs.github.io/congress/legislators?api_key='(myapikey)") as conn:
+        #     r = conn.read()
+        #     # encoding = r.info().get_content_charset('utf-8')
+        #     j = json.loads(r)
+        #     print(j)
+        r = requests.get(url, headers=Constants.API_FETCH_HEADER)
+        if r.status_code == 200:
+            res = json.loads(r.text)
+            for i in res:
+                postid = i['id']
+                postname = i['title']['rendered']
+                content = i['content']['rendered']
+                doi = content.split('persistentId=doi:')[1].split('\"')[0]
+                try:
+                    r = requests.get(Constants.API_DV_DATASETINFO+doi, headers=Constants.API_WP_POSTS_HEADER)
+                    if r.status_code == 200:
+                        res = json.loads(r.text)
+                        if 'latestVersion' not in res['data']:
+                            print(postname + "(" + str(postid) + ")" + " is going to be set to draft.")
+                            payload = "status=draft&aam-jwt={token}".format(token=fetchWPToken())
+                            try:
+                                r = requests.post(Constants.API_WP_UPDATEPOSTS+str(postid), data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
+                                if r.status_code == 200:
+                                    print("Done.")
+                                else:
+                                    print("Failed to set the post to draft.")
+                            except Exception as error:
+                                print('ERROR', error)
+                except Exception as error:
+                    print('ERROR', error)
+
+            print(currentDateTime() + " Status check finished.")
+
+    except Exception as error:
+        print('ERROR', error)
+
 
 def dateDiff(date):
     dateNow = datetime.now()
@@ -215,6 +255,8 @@ def main():
     if len(newlyUpdated) > 0:
         print(currentDateTime() + " Ada WP Bot is uploading Recently Updated Dataset.")
         createWPposts(newlyUpdated, Constants.CATEGORY_UPDATEDPOST)
+    checkPostsStatus(Constants.API_WP_GETPOSTS_PUBLISH)
+    checkPostsStatus(Constants.API_WP_GETPOSTS_UPDATE)
 
 
 if __name__ == "__main__":

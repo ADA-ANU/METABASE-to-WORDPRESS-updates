@@ -5,10 +5,8 @@ import json
 import Constants
 import css
 from datetime import datetime
-import tweepy
 import pytz
 from time import sleep
-from urllib.request import urlopen
 
 newlyPublished = []
 newlyUpdated = []

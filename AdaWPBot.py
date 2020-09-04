@@ -8,7 +8,6 @@ from datetime import datetime
 import pytz
 from time import sleep
 import smtplib
-from urllib.request import urlopen
 
 newlyPublished = []
 newlyUpdated = []

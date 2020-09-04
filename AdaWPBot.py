@@ -209,9 +209,8 @@ def fetchDatasets():
     sessionToken = fetchMetabaseSessionToken()
     try:
         r = requests.post(Constants.API_DATASETS_QUERY_NEWPUBLICATION, headers=datasetHeader(sessionToken))
-        if r.status_code == 200:
+        if 200 <= r.status_code <= 299:
             res = json.loads(r.text)
-
             if len(res) > 0:
                 for i in res:
                     newlyPublished.append(i)
@@ -224,7 +223,7 @@ def fetchDatasets():
 
     try:
         r = requests.post(Constants.API_DATASETS_QUERY_NEWPUPDATE, headers=datasetHeader(sessionToken))
-        if r.status_code == 200:
+        if 200 <= r.status_code <= 299:
             res = json.loads(r.text)
 
             if len(res) > 0:

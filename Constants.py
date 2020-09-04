@@ -91,4 +91,7 @@ consumer_key = os.getenv("CONSUMER_KEY")
 consumer_secret = os.getenv("CONSUMER_SECRET")
 access_token = os.getenv("ACCESS_TOKEN")
 access_token_secret = os.getenv("ACCESS_TOKEN_SECRET")
+admin1 = os.getenv("ADMIN1")
+admin2 = os.getenv("ADMIN2")
+pwAdmin1 = os.getenv("PWADMIN1")
 

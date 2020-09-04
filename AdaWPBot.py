@@ -8,6 +8,7 @@ from datetime import datetime
 import tweepy
 import pytz
 from time import sleep
+import smtplib
 from urllib.request import urlopen
 
 newlyPublished = []
@@ -136,6 +137,24 @@ def checkPostsDate(url):
         print('ERROR', error)
 
 
+def sendEmail(postid, postname):
+    print(currentDateTime() + " sending email to admins...")
+    body = 'Subject: Abnormal status of dataset detected\n\nDear Admin, \n\n' + 'The dataset ' + '<' + postname + '>' + ' on Wordpress with postid ' + str(postid) + " is in abnormal status and waiting for review." + '\n\nRegards,' + '\n\nDS Status Detector'
+    try:
+        smtpObj = smtplib.SMTP('smtp-mail.outlook.com', 587)
+    except Exception as e:
+        print(e)
+        smtpObj = smtplib.SMTP_SSL('smtp-mail.outlook.com', 465)
+    # type(smtpObj)
+    smtpObj.ehlo()
+    smtpObj.starttls()
+    smtpObj.login(Constants.admin1, Constants.pwAdmin1)
+    smtpObj.sendmail(Constants.admin1, [Constants.admin1, Constants.admin2], body)  # Or recipient@outlook
+
+    smtpObj.quit()
+    pass
+
+
 def checkPostsStatus(url):
     print(currentDateTime() + " Checking posts' status...")
     try:
@@ -159,6 +178,7 @@ def checkPostsStatus(url):
                         if 'latestVersion' not in res['data']:
                             print(postname + "(" + str(postid) + ")" + " is going to be set to draft.")
                             payload = "status=draft&aam-jwt={token}".format(token=fetchWPToken())
+                            sendEmail(postid, postname)
                             try:
                                 r = requests.post(Constants.API_WP_UPDATEPOSTS+str(postid), data=payload, headers=Constants.API_WP_CREATEPOTS_HEADER)
                                 if r.status_code == 200:

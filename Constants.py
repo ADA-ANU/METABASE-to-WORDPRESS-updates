@@ -3,25 +3,29 @@ import os
 dotenv.load_dotenv()
 
 CATEGORY_NEWPOST = "24"
+# 26
 
 CATEGORY_UPDATEDPOST = "25"
+# 27
 
-API_METABASE_AUTHENTICATION_ENDPOINT = "https://dataverse-dev.ada.edu.au/metabase/api/session"
+# API_METABASE_AUTHENTICATION_ENDPOINT = "https://dataverse-dev.ada.edu.au/metabase/api/session"
+API_METABASE_AUTHENTICATION_ENDPOINT = "https://reporting.ada.edu.au/api/session"
 #"http://sw-dev.ada.edu.au:8085/wp-json/aam/v2/authenticate"
 API_WP_AUTHENTICATION_ENDPOINT = "https://ada.edu.au/wp-json/aam/v2/authenticate"
-#"http://sw-dev.ada.edu.au:8085/wp-json/wp/v2/posts?categories=26"
+# API_WP_AUTHENTICATION_ENDPOINT = "http://sw-dev.ada.edu.au:8085/wp-json/aam/v2/authenticate"
 API_WP_GETPOSTS_PUBLISH = "https://ada.edu.au/wp-json/wp/v2/posts?categories=24&per_page=20"
-#"http://sw-dev.ada.edu.au:8085/wp-json/wp/v2/posts?categories=27"
+# API_WP_GETPOSTS_PUBLISH = "http://sw-dev.ada.edu.au:8085/wp-json/wp/v2/posts?categories=26&per_page=20"
 API_WP_GETPOSTS_UPDATE = "https://ada.edu.au/wp-json/wp/v2/posts?categories=25&per_page=20"
-#"http://sw-dev.ada.edu.au:8085/wp-json/wp/v2/posts/"
+# API_WP_GETPOSTS_UPDATE = "http://sw-dev.ada.edu.au:8085/wp-json/wp/v2/posts?categories=27&per_page=20"
 API_WP_UPDATEPOSTS = "https://ada.edu.au/wp-json/wp/v2/posts/"
-#"http://sw-dev.ada.edu.au:8085/wp-json/aam/v1/validate-jwt"
+# API_WP_UPDATEPOSTS = "http://sw-dev.ada.edu.au:8085/wp-json/aam/v1/validate-jwt"
 API_WP_VALIDATE = "https://ada.edu.au/wp-json/aam/v1/validate-jwt"
 #328
-API_DATASETS_QUERY_NEWPUBLICATION = "https://dataverse-dev.ada.edu.au/metabase/api/card/396/query/json"
-
-API_DATASETS_QUERY_NEWPUPDATE = "https://dataverse-dev.ada.edu.au/metabase/api/card/397/query/json"
-#"http://sw-dev.ada.edu.au:8085/wp-json/wp/v2/posts"
+# API_DATASETS_QUERY_NEWPUBLICATION = "https://dataverse-dev.ada.edu.au/metabase/api/card/396/query/json"
+API_DATASETS_QUERY_NEWPUBLICATION = "https://reporting.ada.edu.au/api/card/471/query/json"
+# API_DATASETS_QUERY_NEWPUPDATE = "https://dataverse-dev.ada.edu.au/metabase/api/card/397/query/json"
+API_DATASETS_QUERY_NEWPUPDATE = "https://reporting.ada.edu.au/api/card/472/query/json"
+# API_WP_CREATEPOSTS = "http://sw-dev.ada.edu.au:8085/wp-json/wp/v2/posts"
 API_WP_CREATEPOSTS = "https://ada.edu.au/wp-json/wp/v2/posts"
 
 API_DV_DATASETINFO = "https://dataverse.ada.edu.au/api/datasets/:persistentId/?persistentId=doi:"
@@ -78,7 +82,8 @@ API_WP_VALIDATE_HEADER = {
 }
 
 API_WP_CREATEPOTS_HEADER = {
-    'Content-Type': 'application/x-www-form-urlencoded'
+    'Content-Type': 'application/x-www-form-urlencoded',
+    "Cookie": "et-pb-recent-items-font_family=Montserrat;"
 }
 
 API_DATAVERSES_PUBLISHDATASET_HEADER = {
